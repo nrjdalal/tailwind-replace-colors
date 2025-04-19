@@ -2,9 +2,14 @@
 import { existsSync } from "node:fs"
 import { readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
+import { fileURLToPath } from "node:url"
 import { parseArgs } from "node:util"
 import { author, name, version } from "~/package.json"
-import { COLORS } from "./colors"
+
+// Theme path relative to built output
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const THEME_FILE = path.resolve(__dirname, "../../dist/bin/theme.css")
 
 const helpMessage = `Version:
   ${name}@${version}
@@ -27,13 +32,14 @@ const parse: typeof parseArgs = (config) => {
   }
 }
 
-// --- OKLCH Utils --- //
+// --- OKLCH Utilities --- //
 
 const parseOKLCH = (str: string) => {
-  const match = str.match(/oklch\(([^)]+)\)/)
+  const match = str.match(/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/)
   if (!match) return null
-  const [l, c, h] = match[1].trim().split(/\s+/).map(Number)
-  return { l, c, h }
+  let [, l, c, h] = match
+  const lightness = l.endsWith("%") ? parseFloat(l) / 100 : parseFloat(l)
+  return { l: lightness, c: parseFloat(c), h: parseFloat(h) }
 }
 
 const areOKLCHEqual = (
@@ -43,11 +49,15 @@ const areOKLCHEqual = (
   return a.l === b.l && a.c === b.c && a.h === b.h
 }
 
-const loadThemeColors = async (themeColors: string) => {
-  const themeCSS = themeColors
+const loadThemeColors = async (themePath: string) => {
+  let themeCSS = await readFile(themePath, "utf8")
+  themeCSS = `
+--color-white: oklch(100% 0 0);
+--color-black: oklch(0% 0 0);
+${themeCSS}
+`
   const colors: Record<string, string> = {}
   const varRegex = /(--[\w-]+):\s*(oklch\([^)]+\))/g
-
   let match
   while ((match = varRegex.exec(themeCSS)) !== null) {
     const [, varName, oklchValue] = match
@@ -61,24 +71,24 @@ const replaceOKLCHWithVars = (
   themeColors: Record<string, string>,
 ) => {
   const parsedTheme = Object.entries(themeColors)
-    .map(([key, value]) => ({ varName: key, oklch: parseOKLCH(value) }))
-    .filter((x) => x.oklch)
+    .map(([key, value]) => {
+      const parsed = parseOKLCH(value)
+      return parsed ? { varName: key, oklch: parsed } : null
+    })
+    .filter(
+      (
+        x,
+      ): x is { varName: string; oklch: { l: number; c: number; h: number } } =>
+        x !== null,
+    )
 
-  parsedTheme.sort((a, b) => {
-    if (a.varName.includes("neutral") && !b.varName.includes("neutral"))
-      return -1
-    if (!a.varName.includes("neutral") && b.varName.includes("neutral"))
-      return 1
-    return 0
-  })
+  const OKLCH_REGEX = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+[\d.]+\s*\)/g
 
-  return css.replace(/oklch\([^)]+\)/g, (match) => {
+  return css.replace(OKLCH_REGEX, (match) => {
     const target = parseOKLCH(match)
     if (!target) return match
 
-    const found = parsedTheme.find(
-      ({ oklch }) => oklch && areOKLCHEqual(oklch, target),
-    )
+    const found = parsedTheme.find(({ oklch }) => areOKLCHEqual(oklch, target))
     if (found) {
       return `var(${found.varName})`
     }
@@ -86,7 +96,7 @@ const replaceOKLCHWithVars = (
   })
 }
 
-// --- Main Runner --- //
+// --- Main CLI Runner --- //
 
 const main = async () => {
   try {
@@ -110,7 +120,6 @@ const main = async () => {
     }
 
     const inputFileRelative = args[0]
-
     const inputFile = path.resolve(process.cwd(), inputFileRelative)
 
     if (!existsSync(inputFile)) {
@@ -118,7 +127,12 @@ const main = async () => {
       process.exit(1)
     }
 
-    const themeColors = await loadThemeColors(COLORS)
+    if (!existsSync(THEME_FILE)) {
+      console.error(`❌ Theme file not found: ${THEME_FILE}`)
+      process.exit(1)
+    }
+
+    const themeColors = await loadThemeColors(THEME_FILE)
     const inputCSS = await readFile(inputFile, "utf8")
     const outputCSS = replaceOKLCHWithVars(inputCSS, themeColors)
 
