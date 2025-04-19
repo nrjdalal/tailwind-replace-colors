@@ -92,6 +92,12 @@ const replaceOKLCHWithVars = (
 
     const found = parsedTheme.find(({ oklch }) => areOKLCHEqual(oklch, target))
     if (found) {
+      if (
+        found.varName === "--color-zinc-50" &&
+        areOKLCHEqual(target, parseOKLCH(themeColors["--color-neutral-50"])!)
+      ) {
+        found.varName = "--color-neutral-50"
+      }
       return `var(${found.varName})`
     }
     return match
