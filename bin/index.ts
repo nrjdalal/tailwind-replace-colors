@@ -4,9 +4,7 @@ import { readFile, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { parseArgs } from "node:util"
 import { author, name, version } from "~/package.json"
-
-// Hardcoded theme file (relative to CWD)
-const THEME_FILE = "bin/theme.css"
+import { COLORS } from "./colors"
 
 const helpMessage = `Version:
   ${name}@${version}
@@ -45,8 +43,8 @@ const areOKLCHEqual = (
   return a.l === b.l && a.c === b.c && a.h === b.h
 }
 
-const loadThemeColors = async (themePath: string) => {
-  const themeCSS = await readFile(themePath, "utf8")
+const loadThemeColors = async (themeColors: string) => {
+  const themeCSS = themeColors
   const colors: Record<string, string> = {}
   const varRegex = /(--[\w-]+):\s*(oklch\([^)]+\))/g
 
@@ -114,19 +112,13 @@ const main = async () => {
     const inputFileRelative = args[0]
 
     const inputFile = path.resolve(process.cwd(), inputFileRelative)
-    const themeFile = path.resolve(process.cwd(), THEME_FILE)
 
     if (!existsSync(inputFile)) {
       console.error(`❌ Input file not found: ${inputFileRelative}`)
       process.exit(1)
     }
 
-    if (!existsSync(themeFile)) {
-      console.error(`❌ Theme file not found: ${THEME_FILE}`)
-      process.exit(1)
-    }
-
-    const themeColors = await loadThemeColors(themeFile)
+    const themeColors = await loadThemeColors(COLORS)
     const inputCSS = await readFile(inputFile, "utf8")
     const outputCSS = replaceOKLCHWithVars(inputCSS, themeColors)
 
