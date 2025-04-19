@@ -38,7 +38,9 @@ const parseOKLCH = (str: string) => {
   const match = str.match(/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/)
   if (!match) return null
   let [, l, c, h] = match
-  const lightness = l.endsWith("%") ? parseFloat(l) / 100 : parseFloat(l)
+  let lightness = l.endsWith("%") ? parseFloat(l) / 100 : parseFloat(l)
+  lightness = parseFloat(lightness.toFixed(3))
+  if (lightness % 1 === 0) lightness = Math.floor(lightness)
   return { l: lightness, c: parseFloat(c), h: parseFloat(h) }
 }
 
