@@ -1,14 +1,16 @@
 # tailwind-replace-colors
 
-**Auto-replace `oklch(...)` colors with Tailwind-compatible `var(--color-value-number)` variables.**
+**Auto-replace `oklch(...)` colors or `var(--color-name)` variables with clean `oklch(l c h); /* --color-name */` format inside your Tailwind-compatible CSS files.**
 
 ---
 
 ## ✨ Features
 
-- Zero dependencies, fast and lightweight
-- Replace strict `oklch(l c h)` matches from your CSS
-- Overwrites the input file directly
+- 🔥 Zero dependencies, extremely fast
+- 🎯 Replaces both `oklch(l c h)` and `var(--color-name)` usages
+- 📄 Comments the matched color variable (`/* --color-name */`)
+- 🧹 Removes any old inline comments or messy formatting
+- ✍️ Overwrites the input file directly
 
 ---
 
@@ -66,41 +68,41 @@ Input (`globals.css`):
 }
 ```
 
-Output after running:
+After running:
 
 ```css
 .dark {
-  --background: var(--color-neutral-950);
-  --foreground: var(--color-neutral-50);
-  --card: var(--color-neutral-900);
-  --card-foreground: var(--color-neutral-50);
-  --popover: var(--color-neutral-900);
-  --popover-foreground: var(--color-neutral-50);
-  --primary: var(--color-neutral-200);
-  --primary-foreground: var(--color-neutral-900);
-  --secondary: var(--color-neutral-800);
-  --secondary-foreground: var(--color-neutral-50);
-  --muted: var(--color-neutral-800);
-  --muted-foreground: var(--color-neutral-400);
-  --accent: var(--color-neutral-800);
-  --accent-foreground: var(--color-neutral-50);
-  --destructive: var(--color-red-400);
+  --background: oklch(0.145 0 0); /* --color-neutral-950 */
+  --foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --card: oklch(0.205 0 0); /* --color-neutral-900 */
+  --card-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --popover: oklch(0.205 0 0); /* --color-neutral-900 */
+  --popover-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --primary: oklch(0.922 0 0); /* --color-neutral-200 */
+  --primary-foreground: oklch(0.205 0 0); /* --color-neutral-900 */
+  --secondary: oklch(0.269 0 0); /* --color-neutral-800 */
+  --secondary-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --muted: oklch(0.269 0 0); /* --color-neutral-800 */
+  --muted-foreground: oklch(0.708 0 0); /* --color-neutral-400 */
+  --accent: oklch(0.269 0 0); /* --color-neutral-800 */
+  --accent-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --destructive: oklch(0.704 0.191 22.216); /* --color-red-400 */
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: var(--color-neutral-500);
-  --chart-1: var(--color-blue-700);
-  --chart-2: var(--color-emerald-500);
-  --chart-3: var(--color-amber-500);
-  --chart-4: var(--color-purple-500);
-  --chart-5: var(--color-rose-500);
-  --sidebar: var(--color-neutral-900);
-  --sidebar-foreground: var(--color-neutral-50);
-  --sidebar-primary: var(--color-blue-700);
-  --sidebar-primary-foreground: var(--color-neutral-50);
-  --sidebar-accent: var(--color-neutral-800);
-  --sidebar-accent-foreground: var(--color-neutral-50);
+  --ring: oklch(0.556 0 0); /* --color-neutral-500 */
+  --chart-1: oklch(0.488 0.243 264.376); /* --color-blue-700 */
+  --chart-2: oklch(0.696 0.17 162.48); /* --color-emerald-500 */
+  --chart-3: oklch(0.769 0.188 70.08); /* --color-amber-500 */
+  --chart-4: oklch(0.627 0.265 303.9); /* --color-purple-500 */
+  --chart-5: oklch(0.645 0.246 16.439); /* --color-rose-500 */
+  --sidebar: oklch(0.205 0 0); /* --color-neutral-900 */
+  --sidebar-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --sidebar-primary: oklch(0.488 0.243 264.376); /* --color-blue-700 */
+  --sidebar-primary-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
+  --sidebar-accent: oklch(0.269 0 0); /* --color-neutral-800 */
+  --sidebar-accent-foreground: oklch(0.985 0 0); /* --color-neutral-50 */
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: var(--color-neutral-500);
+  --sidebar-ring: oklch(0.556 0 0); /* --color-neutral-500 */
 }
 ```
 

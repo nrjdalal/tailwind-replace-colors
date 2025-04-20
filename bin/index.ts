@@ -6,10 +6,13 @@ import { fileURLToPath } from "node:url"
 import { parseArgs } from "node:util"
 import { author, name, version } from "~/package.json"
 
-// Theme path relative to built output
+// --- Setup Theme Path ---
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const THEME_FILE = path.resolve(__dirname, "../../dist/bin/theme.css")
+
+// --- CLI Help Message ---
 
 const helpMessage = `Version:
   ${name}@${version}
@@ -32,7 +35,7 @@ const parse: typeof parseArgs = (config) => {
   }
 }
 
-// --- OKLCH Utilities --- //
+// --- OKLCH Utilities ---
 
 const parseOKLCH = (str: string) => {
   const match = str.match(/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/)
@@ -68,7 +71,9 @@ ${themeCSS}
   return colors
 }
 
-const replaceOKLCHWithVars = (
+// --- Main Replace Function ---
+
+const replaceOKLCHWithComments = (
   css: string,
   themeColors: Record<string, string>,
 ) => {
@@ -85,26 +90,75 @@ const replaceOKLCHWithVars = (
     )
 
   const OKLCH_REGEX = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+[\d.]+\s*\)/g
+  const VAR_REGEX = /var\(--color-[a-zA-Z0-9-]+\)/g
 
-  return css.replace(OKLCH_REGEX, (match) => {
-    const target = parseOKLCH(match)
-    if (!target) return match
+  let result = ""
+  let lastIndex = 0
 
-    const found = parsedTheme.find(({ oklch }) => areOKLCHEqual(oklch, target))
-    if (found) {
-      if (
-        found.varName === "--color-zinc-50" &&
-        areOKLCHEqual(target, parseOKLCH(themeColors["--color-neutral-50"])!)
-      ) {
-        found.varName = "--color-neutral-50"
+  const matches = [
+    ...css.matchAll(
+      new RegExp(`${OKLCH_REGEX.source}|${VAR_REGEX.source}`, "g"),
+    ),
+  ]
+
+  for (const match of matches) {
+    const token = match[0]
+    const matchIndex = match.index ?? 0
+
+    result += css.slice(lastIndex, matchIndex)
+
+    let replacement = token
+
+    if (token.startsWith("oklch(")) {
+      const target = parseOKLCH(token)
+      if (target) {
+        const found = parsedTheme.find(({ oklch }) =>
+          areOKLCHEqual(oklch, target),
+        )
+        if (found) {
+          let commentVar = found.varName
+          if (
+            found.varName === "--color-zinc-50" &&
+            areOKLCHEqual(
+              target,
+              parseOKLCH(themeColors["--color-neutral-50"])!,
+            )
+          ) {
+            commentVar = "--color-neutral-50"
+          }
+          replacement = `${token}; /* ${commentVar} */`
+        }
       }
-      return `var(${found.varName})`
+    } else if (token.startsWith("var(")) {
+      const varName = token.match(/var\((--color-[a-zA-Z0-9-]+)\)/)?.[1]
+      if (varName) {
+        const oklchValue = themeColors[varName]
+        const parsed = oklchValue ? parseOKLCH(oklchValue) : null
+        if (parsed) {
+          replacement = `oklch(${parsed.l} ${parsed.c} ${parsed.h}); /* ${varName} */`
+        }
+      }
     }
-    return match
-  })
+
+    result += replacement
+
+    // Skip everything until next \n
+    const rest = css.slice(matchIndex + token.length)
+    const nextNewline = rest.indexOf("\n")
+    if (nextNewline !== -1) {
+      lastIndex = matchIndex + token.length + nextNewline + 1
+      result += "\n"
+    } else {
+      lastIndex = css.length
+    }
+  }
+
+  result += css.slice(lastIndex)
+
+  return result
 }
 
-// --- Main CLI Runner --- //
+// --- Main CLI runner ---
 
 const main = async () => {
   try {
@@ -142,10 +196,10 @@ const main = async () => {
 
     const themeColors = await loadThemeColors(THEME_FILE)
     const inputCSS = await readFile(inputFile, "utf8")
-    const outputCSS = replaceOKLCHWithVars(inputCSS, themeColors)
+    const outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
 
     await writeFile(inputFile, outputCSS)
-    console.log(`✅ Replaced OKLCH and updated ${inputFileRelative}`)
+    console.log(`✅ Updated ${inputFileRelative} successfully.`)
   } catch (err: any) {
     console.error(helpMessage)
     console.error(`\n${err.message}\n`)
