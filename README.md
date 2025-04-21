@@ -1,9 +1,8 @@
 # colorwindcss
 
 - Effortlessly enhance your Tailwind-compatible CSS files.
-- Transform `oklch(...)` colors or `var(--color-name)` variables into a standardized `oklch(l c h); /* --color-name */` format.
-- Automatically add descriptive comments for matched variables.
-- Provide suggestions for unmatched values (e.g., `🔥 near --color-lime-600`).
+- Transform `oklch(...)` values or `var(--tailwind-color)` as `oklch(l c h); /* --tailwind-color */`.
+- Provide suggestions for unmatched values (e.g. `🔥 near --tailwind-color`).
 
 ```css
 /* Before */
