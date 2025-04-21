@@ -140,7 +140,7 @@ const replaceOKLCHWithComments = (
               ? curr
               : prev
           })
-          replacement = `${token}; /* 🔥 ${closest.varName} */`
+          replacement = `${token}; /* 🔥 near ${closest.varName} */`
         }
       }
     } else if (token.startsWith("var(")) {
