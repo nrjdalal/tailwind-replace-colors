@@ -215,7 +215,17 @@ const main = async () => {
 
     const themeColors = await loadThemeColors(THEME_FILE)
     const inputCSS = await readFile(inputFile, "utf8")
-    const outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
+    let outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
+
+    const zincCount = (outputCSS.match(/\b(zinc)\b/g) || []).length
+    const neutralCount = (outputCSS.match(/\b(neutral)\b/g) || []).length
+
+    const targetComment =
+      neutralCount > zincCount ? "--color-neutral-50" : "--color-zinc-50"
+    outputCSS = outputCSS.replaceAll(
+      /\/\* --color-(zinc|neutral)-50 \*\//g,
+      `/* ${targetComment} */`,
+    )
 
     await writeFile(inputFile, outputCSS)
     console.log(
