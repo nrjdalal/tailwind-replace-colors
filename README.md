@@ -29,7 +29,7 @@ File is at `src/app/globals.css` or `app/globals.css`, run:
 npx colorwindcss@latest
 ```
 
-If your file is at a different path, then run:
+If your file is at a different path, not as above, then run:
 
 ```bash
 npx colorwindcss@latest <path-to-file>
