@@ -1,11 +1,11 @@
 {
-  "name": "tailwind-replace-colors",
-  "version": "0.2.0",
-  "description": "tailwind-replace-colors",
+  "name": "tailwindcss-color",
+  "version": "0.0.1",
+  "description": "colorwindcss",
   "keywords": [],
-  "homepage": "https://github.com/nrjdalal/tailwind-replace-colors#readme",
-  "bugs": "https://github.com/nrjdalal/tailwind-replace-colors/issues",
-  "repository": "nrjdalal/tailwind-replace-colors",
+  "homepage": "https://github.com/nrjdalal/colorwindcss#readme",
+  "bugs": "https://github.com/nrjdalal/colorwindcss/issues",
+  "repository": "nrjdalal/colorwindcss",
   "funding": "https://github.com/sponsors/nrjdalal",
   "license": "MIT",
   "author": {
