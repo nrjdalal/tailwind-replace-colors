@@ -129,7 +129,7 @@ const replaceOKLCHWithComments = (
               a: { l: number; c: number; h: number },
               b: { l: number; c: number; h: number },
             ) => {
-              const deltaL = a.l - b.l
+              const deltaL = (a.l - b.l) * 10
               const deltaC = a.c - b.c
               const deltaH = a.h - b.h
               return Math.sqrt(
