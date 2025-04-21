@@ -1,8 +1,14 @@
 {
   "name": "colorwindcss",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "colorwindcss",
-  "keywords": [],
+  "keywords": [
+    "colors",
+    "comments",
+    "oklch",
+    "tailwind",
+    "tailwindcss"
+  ],
   "homepage": "https://github.com/nrjdalal/colorwindcss#readme",
   "bugs": "https://github.com/nrjdalal/colorwindcss/issues",
   "repository": "nrjdalal/colorwindcss",
