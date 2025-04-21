@@ -1,6 +1,6 @@
 {
   "name": "colorwindcss",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "colorwindcss",
   "keywords": [],
   "homepage": "https://github.com/nrjdalal/colorwindcss#readme",
@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "tsup && npx gitpick@latest https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/theme.css dist/bin/theme.css",
-    "cli": "bun run build && bunx gitpick@latest https://github.com/origin-space/originui/blob/main/app/globals.css -f && node dist/bin/index.js globals.css",
+    "cli": "bun run build && bunx gitpick@latest https://github.com/origin-space/originui/blob/main/app/globals.css -f && node dist/bin/index.js",
     "dev": "tsup --watch",
     "prepare": "npx simple-git-hooks"
   },

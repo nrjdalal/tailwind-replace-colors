@@ -182,33 +182,30 @@ const main = async () => {
       console.log(`${name}@${version}`)
       process.exit(0)
     }
-    if (values.help || positionals.length === 0) {
+    if (values.help) {
       console.log(helpMessage)
       process.exit(0)
     }
 
-    let inputFileRelative = positionals[0]
-    let inputFile = path.resolve(process.cwd(), inputFileRelative)
+    let inputFile = positionals[0]
 
-    if (!existsSync(inputFile)) {
-      console.warn(`⚠️ Input file not found: ${inputFileRelative}`)
+    const fallbackFiles = [
+      inputFile && path.resolve(process.cwd(), inputFile),
+      path.resolve(process.cwd(), "src/app/globals.css"),
+      path.resolve(process.cwd(), "app/globals.css"),
+      path.resolve(process.cwd(), "globals.css"),
+    ]
 
-      // Check for fallback files
-      const fallbackFiles = [
-        path.resolve(process.cwd(), "src/app/globals.css"),
-        path.resolve(process.cwd(), "app/globals.css"),
-      ]
+    const foundFallback = fallbackFiles.find((file) => existsSync(file))
 
-      const foundFallback = fallbackFiles.find((file) => existsSync(file))
-      if (foundFallback) {
-        console.log(
-          `✅ Using fallback file: ${path.relative(process.cwd(), foundFallback)}`,
-        )
-        inputFile = foundFallback
-      } else {
-        console.error(`❌ No valid input file found.`)
-        process.exit(1)
-      }
+    if (foundFallback) {
+      console.log(
+        `✅ Using file: ${path.relative(process.cwd(), foundFallback)}`,
+      )
+      inputFile = foundFallback
+    } else {
+      console.error(`❌ No valid input file found.`)
+      process.exit(1)
     }
 
     if (!existsSync(THEME_FILE)) {
