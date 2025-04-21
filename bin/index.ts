@@ -120,6 +120,21 @@ const replaceOKLCHWithComments = (
         if (found) {
           let commentVar = found.varName
           replacement = `${token}; /* ${commentVar} */`
+        } else {
+          const closest = parsedTheme.reduce((prev, curr) => {
+            const prevDiff = Math.sqrt(
+              Math.pow(prev.oklch.l - target.l, 2) +
+                Math.pow(prev.oklch.c - target.c, 2) +
+                Math.pow(prev.oklch.h - target.h, 2),
+            )
+            const currDiff = Math.sqrt(
+              Math.pow(curr.oklch.l - target.l, 2) +
+                Math.pow(curr.oklch.c - target.c, 2) +
+                Math.pow(curr.oklch.h - target.h, 2),
+            )
+            return currDiff < prevDiff ? curr : prev
+          })
+          replacement = `${token}; /* close to ${closest.varName} */`
         }
       }
     } else if (token.startsWith("var(")) {
