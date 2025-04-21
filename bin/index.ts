@@ -69,7 +69,10 @@ ${themeCSS}
     colors[varName] = oklchValue
   }
   return Object.fromEntries(
-    Object.entries(colors).sort(([a], [b]) => a.localeCompare(b)),
+    Object.entries(colors).sort(
+      ([keyA, valueA], [keyB, valueB]) =>
+        keyA.localeCompare(keyB) || valueA.localeCompare(valueB),
+    ),
   )
 }
 
@@ -122,17 +125,20 @@ const replaceOKLCHWithComments = (
           replacement = `${token}; /* ${commentVar} */`
         } else {
           const closest = parsedTheme.reduce((prev, curr) => {
-            const prevDiff = Math.sqrt(
-              Math.pow(prev.oklch.l - target.l, 2) +
-                Math.pow(prev.oklch.c - target.c, 2) +
-                Math.pow(prev.oklch.h - target.h, 2),
-            )
-            const currDiff = Math.sqrt(
-              Math.pow(curr.oklch.l - target.l, 2) +
-                Math.pow(curr.oklch.c - target.c, 2) +
-                Math.pow(curr.oklch.h - target.h, 2),
-            )
-            return currDiff < prevDiff ? curr : prev
+            const deltaE = (
+              a: { l: number; c: number; h: number },
+              b: { l: number; c: number; h: number },
+            ) => {
+              const deltaL = a.l - b.l
+              const deltaC = a.c - b.c
+              const deltaH = a.h - b.h
+              return Math.sqrt(
+                deltaL * deltaL + deltaC * deltaC + deltaH * deltaH,
+              )
+            }
+            return deltaE(curr.oklch, target) < deltaE(prev.oklch, target)
+              ? curr
+              : prev
           })
           replacement = `${token}; /* close to ${closest.varName} */`
         }
