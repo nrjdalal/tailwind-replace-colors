@@ -68,7 +68,9 @@ ${themeCSS}
     const [, varName, oklchValue] = match
     colors[varName] = oklchValue
   }
-  return colors
+  return Object.fromEntries(
+    Object.entries(colors).sort(([a], [b]) => a.localeCompare(b)),
+  )
 }
 
 // --- Main Replace Function ---
@@ -89,8 +91,8 @@ const replaceOKLCHWithComments = (
         x !== null,
     )
 
-  const OKLCH_REGEX = /oklch\(\s*[\d.]+%?\s+[\d.]+\s+[\d.]+\s*\)/g
-  const VAR_REGEX = /var\(--color-[a-zA-Z0-9-]+\)/g
+  const OKLCH_REGEX = /oklch\(([\d.]+%|[\d.]+) [\d.]+ [\d.]+\)/g
+  const VAR_REGEX = /var\(--color-[a-z0-9-]+\)/g
 
   let result = ""
   let lastIndex = 0
@@ -117,15 +119,6 @@ const replaceOKLCHWithComments = (
         )
         if (found) {
           let commentVar = found.varName
-          if (
-            found.varName === "--color-zinc-50" &&
-            areOKLCHEqual(
-              target,
-              parseOKLCH(themeColors["--color-neutral-50"])!,
-            )
-          ) {
-            commentVar = "--color-neutral-50"
-          }
           replacement = `${token}; /* ${commentVar} */`
         }
       }

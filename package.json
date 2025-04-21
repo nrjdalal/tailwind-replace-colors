@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "tsup && npx gitpick@latest https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/theme.css dist/bin/theme.css",
-    "cli": "bun run build && node dist/bin/index.js",
+    "cli": "bun run build && bunx gitpick@latest https://github.com/origin-space/originui/blob/main/app/globals.css -f && node dist/bin/index.js globals.css",
     "dev": "tsup --watch",
     "prepare": "npx simple-git-hooks"
   },
