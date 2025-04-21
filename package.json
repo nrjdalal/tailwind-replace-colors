@@ -37,7 +37,6 @@
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown",
-    "*.css": "git rm --cached",
     "package.json": "sort-package-json"
   },
   "prettier": {
