@@ -1,29 +1,39 @@
 # colorwindcss
 
-**Auto-replace `oklch(...)` colors or `var(--color-name)` variables with clean `oklch(l c h); /* --color-name */` format inside your Tailwind-compatible CSS files.**
+- Effortlessly enhance your Tailwind-compatible CSS files.
+- Transform `oklch(...)` colors or `var(--color-name)` variables into a standardized `oklch(l c h); /* --color-name */` format.
+- Automatically add descriptive comments for matched variables.
+- Provide suggestions for unmatched values (e.g., `🔥 near --color-lime-600`).
 
----
-
-## ✨ Features
-
-- 🔥 Zero dependencies, extremely fast
-- 🎯 Replaces both `oklch(l c h)` and `var(--color-name)` usages
-- 📄 Comments the matched color variable (`/* --color-name */`)
-- 🧹 Removes any old inline comments or messy formatting
-- ✍️ Overwrites the input file directly
+```css
+/* Before */
+.dark {
+  --oklch-value: oklch(0.145 0 0);
+  --tailwind-variable: var(--color-neutral-50);
+  --random-value: oklch(0.7 0.1 140);
+}
+/* After */
+.dark {
+  --oklch-value: oklch(0.145 0 0); /* --color-neutral-950 */
+  --tailwind-variable: oklch(0.985 0 0); /* --color-neutral-50 */
+  --random-value: oklch(0.7 0.1 140); /* 🔥 near --color-lime-600 */
+}
+```
 
 ---
 
 ## 🚀 Usage
 
+File is at `src/app/globals.css` or `app/globals.css`, run:
+
 ```bash
-npx colorwindcss <input.css>
+npx colorwindcss@latest
 ```
 
-Example:
+If your file is at a different path, then run:
 
 ```bash
-npx colorwindcss src/app/globals.css
+npx colorwindcss@latest <path-to-file>
 ```
 
 ---
@@ -117,7 +127,7 @@ npm install -g colorwindcss
 Then:
 
 ```bash
-colorwindcss src/app/globals.css
+colorwindcss <path-to-file>
 ```
 
 ---
