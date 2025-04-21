@@ -1,4 +1,4 @@
-# tailwind-replace-colors
+# colorwindcss
 
 **Auto-replace `oklch(...)` colors or `var(--color-name)` variables with clean `oklch(l c h); /* --color-name */` format inside your Tailwind-compatible CSS files.**
 
@@ -17,13 +17,13 @@
 ## 🚀 Usage
 
 ```bash
-npx tailwind-replace-colors <input.css>
+npx colorwindcss <input.css>
 ```
 
 Example:
 
 ```bash
-npx tailwind-replace-colors src/app/globals.css
+npx colorwindcss src/app/globals.css
 ```
 
 ---
@@ -111,13 +111,13 @@ After running:
 ## 📦 Install Globally (Optional)
 
 ```bash
-npm install -g tailwind-replace-colors
+npm install -g colorwindcss
 ```
 
 Then:
 
 ```bash
-tailwind-replace-colors src/app/globals.css
+colorwindcss src/app/globals.css
 ```
 
 ---

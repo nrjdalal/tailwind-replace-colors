@@ -162,8 +162,6 @@ const replaceOKLCHWithComments = (
 
 const main = async () => {
   try {
-    const args = process.argv.slice(2)
-
     const { positionals, values } = parse({
       allowPositionals: true,
       options: {
@@ -176,17 +174,33 @@ const main = async () => {
       console.log(`${name}@${version}`)
       process.exit(0)
     }
-    if (values.help || args.length === 0) {
+    if (values.help || positionals.length === 0) {
       console.log(helpMessage)
       process.exit(0)
     }
 
-    const inputFileRelative = args[0]
-    const inputFile = path.resolve(process.cwd(), inputFileRelative)
+    let inputFileRelative = positionals[0]
+    let inputFile = path.resolve(process.cwd(), inputFileRelative)
 
     if (!existsSync(inputFile)) {
-      console.error(`❌ Input file not found: ${inputFileRelative}`)
-      process.exit(1)
+      console.warn(`⚠️ Input file not found: ${inputFileRelative}`)
+
+      // Check for fallback files
+      const fallbackFiles = [
+        path.resolve(process.cwd(), "src/app/globals.css"),
+        path.resolve(process.cwd(), "app/globals.css"),
+      ]
+
+      const foundFallback = fallbackFiles.find((file) => existsSync(file))
+      if (foundFallback) {
+        console.log(
+          `✅ Using fallback file: ${path.relative(process.cwd(), foundFallback)}`,
+        )
+        inputFile = foundFallback
+      } else {
+        console.error(`❌ No valid input file found.`)
+        process.exit(1)
+      }
     }
 
     if (!existsSync(THEME_FILE)) {
@@ -199,7 +213,9 @@ const main = async () => {
     const outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
 
     await writeFile(inputFile, outputCSS)
-    console.log(`✅ Updated ${inputFileRelative} successfully.`)
+    console.log(
+      `✅ Updated ${path.relative(process.cwd(), inputFile)} successfully.`,
+    )
   } catch (err: any) {
     console.error(helpMessage)
     console.error(`\n${err.message}\n`)
