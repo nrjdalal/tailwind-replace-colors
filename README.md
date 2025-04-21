@@ -1,6 +1,7 @@
 # colorwindcss
 
-- Effortlessly enhance your Tailwind-compatible CSS files.
+Need to know your colors better? Identify which [Tailwind colors](https://tailwindcss.com/docs/colors) are used in your CSS files with `colorwindcss`!
+
 - Transform `oklch(...)` values or `var(--tailwind-color)` as `oklch(l c h); /* --tailwind-color */`.
 - Provide suggestions for unmatched values (e.g. `🔥 near --tailwind-color`).
 

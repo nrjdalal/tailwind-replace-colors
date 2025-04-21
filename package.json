@@ -1,7 +1,7 @@
 {
   "name": "colorwindcss",
-  "version": "0.2.1",
-  "description": "colorwindcss",
+  "version": "0.3.0",
+  "description": "Need to know your colors better? Identify which Tailwind colors are used in your CSS files with `colorwindcss`!",
   "keywords": [
     "colors",
     "comments",
