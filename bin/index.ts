@@ -191,11 +191,15 @@ const updateThemeColors = async (
     `/* ${targetComment} */`,
   )
 
+  const filepath = path.relative(process.cwd(), inputFile)
+
+  if (inputCSS === outputCSS) {
+    return console.log(`ℹ️ No changes made to ${filepath}.`)
+  }
+
   await writeFile(inputFile, outputCSS)
 
-  console.log(
-    `✅ Updated ${path.relative(process.cwd(), inputFile)} successfully.`,
-  )
+  return console.log(`✅ Updated ${filepath} successfully.`)
 }
 
 // --- Main CLI runner ---
@@ -236,7 +240,6 @@ const main = async () => {
             .filter((line) => line.trim() && !line.startsWith("#"))
             .map((line) => line.replace(/^\//, ""))
         : []
-
       const fallbackFiles = await glob(["**/*.css", ".**/*.css"], {
         cwd: process.cwd(),
         ignore: ignorePatterns,
