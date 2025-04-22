@@ -1,6 +1,6 @@
 {
   "name": "colorwindcss",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Need to know your colors better? Identify which Tailwind colors are used in your CSS files with `colorwindcss`!",
   "keywords": [
     "colors",
@@ -50,6 +50,9 @@
       "@ianvs/prettier-plugin-sort-imports"
     ],
     "semi": false
+  },
+  "dependencies": {
+    "tinyglobby": "^0.2.13"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",

@@ -5,6 +5,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { parseArgs } from "node:util"
 import { author, name, version } from "~/package.json"
+import { glob } from "tinyglobby"
 
 // --- Setup Theme Path ---
 
@@ -172,6 +173,31 @@ const replaceOKLCHWithComments = (
   return result
 }
 
+// updateThemeColors
+const updateThemeColors = async (
+  inputFile: string,
+  themeColors: Record<string, string>,
+) => {
+  const inputCSS = await readFile(inputFile, "utf8")
+  let outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
+
+  const zincCount = (outputCSS.match(/\b(zinc)\b/g) || []).length
+  const neutralCount = (outputCSS.match(/\b(neutral)\b/g) || []).length
+
+  const targetComment =
+    neutralCount > zincCount ? "--color-neutral-50" : "--color-zinc-50"
+  outputCSS = outputCSS.replaceAll(
+    /\/\* --color-(zinc|neutral)-50 \*\//g,
+    `/* ${targetComment} */`,
+  )
+
+  await writeFile(inputFile, outputCSS)
+
+  console.log(
+    `✅ Updated ${path.relative(process.cwd(), inputFile)} successfully.`,
+  )
+}
+
 // --- Main CLI runner ---
 
 const main = async () => {
@@ -193,50 +219,27 @@ const main = async () => {
       process.exit(0)
     }
 
-    let inputFile = positionals[0]
+    const inputFile = positionals[0]
+    const fallbackFiles = await glob("**/*.css")
 
-    const fallbackFiles = [
-      inputFile && path.resolve(process.cwd(), inputFile),
-      path.resolve(process.cwd(), "src/app/globals.css"),
-      path.resolve(process.cwd(), "app/globals.css"),
-      path.resolve(process.cwd(), "globals.css"),
-    ]
-
-    const foundFallback = fallbackFiles.find((file) => existsSync(file))
-
-    if (foundFallback) {
-      console.log(
-        `✅ Using file: ${path.relative(process.cwd(), foundFallback)}`,
-      )
-      inputFile = foundFallback
-    } else {
-      console.error(`❌ No valid input file found.`)
-      process.exit(1)
-    }
-
-    if (!existsSync(THEME_FILE)) {
-      console.error(`❌ Theme file not found: ${THEME_FILE}`)
+    if (!positionals.length && !fallbackFiles.length) {
+      console.error(`❌ No input file provided.`)
       process.exit(1)
     }
 
     const themeColors = await loadThemeColors(THEME_FILE)
-    const inputCSS = await readFile(inputFile, "utf8")
-    let outputCSS = replaceOKLCHWithComments(inputCSS, themeColors)
 
-    const zincCount = (outputCSS.match(/\b(zinc)\b/g) || []).length
-    const neutralCount = (outputCSS.match(/\b(neutral)\b/g) || []).length
-
-    const targetComment =
-      neutralCount > zincCount ? "--color-neutral-50" : "--color-zinc-50"
-    outputCSS = outputCSS.replaceAll(
-      /\/\* --color-(zinc|neutral)-50 \*\//g,
-      `/* ${targetComment} */`,
-    )
-
-    await writeFile(inputFile, outputCSS)
-    console.log(
-      `✅ Updated ${path.relative(process.cwd(), inputFile)} successfully.`,
-    )
+    if (inputFile) {
+      if (!existsSync(inputFile)) {
+        console.error(`❌ Input file not found: ${inputFile}`)
+        process.exit(1)
+      }
+      await updateThemeColors(inputFile, themeColors)
+    } else {
+      for (const file of fallbackFiles) {
+        await updateThemeColors(file, themeColors)
+      }
+    }
   } catch (err: any) {
     console.error(helpMessage)
     console.error(`\n${err.message}\n`)

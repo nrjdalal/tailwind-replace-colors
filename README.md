@@ -4,6 +4,7 @@ Need to know your colors better? Identify which [Tailwind colors](https://tailwi
 
 - Transform `oklch(...)` values or `var(--tailwind-color)` as `oklch(l c h); /* --tailwind-color */`.
 - Provide suggestions for unmatched values (e.g. `🔥 near --tailwind-color`).
+- Automatically detects all CSS files in the current directory and subdirectories.
 
 ```css
 /* Before */
@@ -24,13 +25,11 @@ Need to know your colors better? Identify which [Tailwind colors](https://tailwi
 
 ## 🚀 Usage
 
-File is at `src/app/globals.css` or `app/globals.css`, run:
-
 ```bash
 npx colorwindcss@latest
 ```
 
-If your file is at a different path, not as above, then run:
+For a specific path, or not a CSS file:
 
 ```bash
 npx colorwindcss@latest <path-to-file>
@@ -125,6 +124,12 @@ npm install -g colorwindcss
 ```
 
 Then:
+
+```bash
+colorwindcss
+```
+
+Or for a specific path:
 
 ```bash
 colorwindcss <path-to-file>
