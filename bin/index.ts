@@ -194,7 +194,7 @@ const updateThemeColors = async (
   const filepath = path.relative(process.cwd(), inputFile)
 
   if (inputCSS === outputCSS) {
-    return console.log(`ℹ️ No changes made to ${filepath}.`)
+    return console.log(`- No changes made to ${filepath}.`)
   }
 
   await writeFile(inputFile, outputCSS)
