@@ -1,5 +1,5 @@
 .dark {
   --oklch-value: oklch(0.145 0 0); /* --color-neutral-950 */
   --tailwind-variable: oklch(0.985 0 0); /* --color-neutral-50 */
-  --random-value: oklch(0.7 0.1 140 / 15%); /* 🔥 near --color-lime-600 */
+  --random-value: oklch(0.7 0.1 140 / 15%); /* 🔥 near --color-lime-600 💧 */
 }

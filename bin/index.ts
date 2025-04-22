@@ -127,8 +127,9 @@ const replaceOKLCHWithComments = (
         const found = parsedTheme.find(({ oklch }) =>
           areOKLCHEqual(oklch, target),
         )
+        const hasAlpha = token.includes("/")
         if (found) {
-          replacement = `${token}; /* ${found.varName} */`
+          replacement = `${token}; /* ${found.varName}${hasAlpha ? " 💧" : ""} */`
         } else {
           const closest = parsedTheme.reduce((prev, curr) => {
             const deltaE = (
@@ -146,7 +147,7 @@ const replaceOKLCHWithComments = (
               ? curr
               : prev
           })
-          replacement = `${token}; /* 🔥 near ${closest.varName} */`
+          replacement = `${token}; /* 🔥 near ${closest.varName}${hasAlpha ? " 💧" : ""} */`
         }
       }
     } else if (token.startsWith("var(")) {
