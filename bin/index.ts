@@ -58,8 +58,8 @@ const areOKLCHEqual = (
 const loadThemeColors = async (themePath: string) => {
   let themeCSS = await readFile(themePath, "utf8")
   themeCSS = `
---color-white: oklch(100% 0 0);
---color-black: oklch(0% 0 0);
+--color-white: oklch(100% 0 0); /* --color-white */
+--color-black: oklch(0% 0 0); /* --color-black */
 ${themeCSS}
 `
   const colors: Record<string, string> = {}
@@ -219,23 +219,24 @@ const main = async () => {
       process.exit(0)
     }
 
-    const inputFile = positionals[0]
-    const fallbackFiles = await glob("**/*.css")
-
-    if (!positionals.length && !fallbackFiles.length) {
-      console.error(`❌ No input file provided.`)
-      process.exit(1)
-    }
-
     const themeColors = await loadThemeColors(THEME_FILE)
 
-    if (inputFile) {
-      if (!existsSync(inputFile)) {
-        console.error(`❌ Input file not found: ${inputFile}`)
-        process.exit(1)
+    if (positionals.length) {
+      for (const inputFile of positionals) {
+        if (!existsSync(inputFile)) {
+          console.error(`❌ Input file not found: ${inputFile}`)
+        }
+        await updateThemeColors(inputFile, themeColors)
       }
-      await updateThemeColors(inputFile, themeColors)
     } else {
+      const fallbackFiles = await glob(["**/*.css", ".**/*.css"], {
+        cwd: process.cwd(),
+        ignore: (
+          await readFile(path.resolve(process.cwd(), ".gitignore"), "utf8")
+        )
+          .split("\n")
+          .filter((line) => line.trim() && !line.startsWith("#")),
+      })
       for (const file of fallbackFiles) {
         await updateThemeColors(file, themeColors)
       }
