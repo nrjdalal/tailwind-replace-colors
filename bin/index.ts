@@ -10,7 +10,7 @@ import { glob } from "tinyglobby"
 // --- Constants ---
 
 const OKLCH_REGEX =
-  /oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)/gi
+  /oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+%?))?\s*\)/gi
 const VAR_REGEX = /var\(--color-[a-z0-9-]+\)/g
 const VAR_EXTRACT_REGEX = /var\((--color-[a-z0-9-]+)\)/
 const THEME_VAR_REGEX = /(--[\w-]+):\s*(oklch\([^)]+\))/g
