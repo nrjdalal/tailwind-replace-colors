@@ -130,7 +130,7 @@ const replaceOKLCHWithComments = (
               a: { l: number; c: number; h: number },
               b: { l: number; c: number; h: number },
             ) => {
-              const deltaL = (a.l - b.l) * 10
+              const deltaL = (a.l - b.l) * 100
               const deltaC = a.c - b.c
               const deltaH = a.h - b.h
               return Math.sqrt(
@@ -173,7 +173,8 @@ const replaceOKLCHWithComments = (
   return result
 }
 
-// updateThemeColors
+// -- Main Update Function ---
+
 const updateThemeColors = async (
   inputFile: string,
   themeColors: Record<string, string>,
@@ -194,12 +195,12 @@ const updateThemeColors = async (
   const filepath = path.relative(process.cwd(), inputFile)
 
   if (inputCSS === outputCSS) {
-    return console.log(`- No changes made to ${filepath}.`)
+    return console.log(`🔍 Unchanged - ${filepath}`)
   }
 
   await writeFile(inputFile, outputCSS)
 
-  return console.log(`✅ Updated ${filepath} successfully.`)
+  return console.log(`✅ Updated - ${filepath}`)
 }
 
 // --- Main CLI runner ---
@@ -238,7 +239,7 @@ const main = async () => {
         ? (await readFile(gitignorePath, "utf8"))
             .split("\n")
             .filter((line) => line.trim() && !line.startsWith("#"))
-            .map((line) => line.replace(/^\//, ""))
+            .map((line) => line.replace(/^\//, "").replace(/^/, "**/"))
         : []
       const fallbackFiles = await glob(["**/*.css", ".**/*.css"], {
         cwd: process.cwd(),
