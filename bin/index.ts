@@ -229,13 +229,17 @@ const main = async () => {
         await updateThemeColors(inputFile, themeColors)
       }
     } else {
+      const gitignorePath = path.resolve(process.cwd(), ".gitignore")
+      const ignorePatterns = existsSync(gitignorePath)
+        ? (await readFile(gitignorePath, "utf8"))
+            .split("\n")
+            .filter((line) => line.trim() && !line.startsWith("#"))
+            .map((line) => line.replace(/^\//, ""))
+        : []
+
       const fallbackFiles = await glob(["**/*.css", ".**/*.css"], {
         cwd: process.cwd(),
-        ignore: (
-          await readFile(path.resolve(process.cwd(), ".gitignore"), "utf8")
-        )
-          .split("\n")
-          .filter((line) => line.trim() && !line.startsWith("#")),
+        ignore: ignorePatterns,
       })
       for (const file of fallbackFiles) {
         await updateThemeColors(file, themeColors)
