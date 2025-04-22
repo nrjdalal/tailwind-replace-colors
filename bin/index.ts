@@ -7,6 +7,15 @@ import { parseArgs } from "node:util"
 import { author, name, version } from "~/package.json"
 import { glob } from "tinyglobby"
 
+// --- Constants ---
+
+const OKLCH_REGEX =
+  /oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)/gi
+const VAR_REGEX = /var\(--color-[a-z0-9-]+\)/g
+const VAR_EXTRACT_REGEX = /var\((--color-[a-z0-9-]+)\)/
+const THEME_VAR_REGEX = /(--[\w-]+):\s*(oklch\([^)]+\))/g
+const COMMENT_VAR_REGEX = /\/\* --color-(zinc|neutral)-50 \*\//g
+
 // --- Setup Theme Path ---
 
 const __filename = fileURLToPath(import.meta.url)
@@ -39,7 +48,8 @@ const parse: typeof parseArgs = (config) => {
 // --- OKLCH Utilities ---
 
 const parseOKLCH = (str: string) => {
-  const match = str.match(/^oklch\(\s*([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/)
+  OKLCH_REGEX.lastIndex = 0
+  const match = OKLCH_REGEX.exec(str)
   if (!match) return null
   let [, l, c, h] = match
   let lightness = l.endsWith("%") ? parseFloat(l) / 100 : parseFloat(l)
@@ -63,9 +73,8 @@ const loadThemeColors = async (themePath: string) => {
 ${themeCSS}
 `
   const colors: Record<string, string> = {}
-  const varRegex = /(--[\w-]+):\s*(oklch\([^)]+\))/g
   let match
-  while ((match = varRegex.exec(themeCSS)) !== null) {
+  while ((match = THEME_VAR_REGEX.exec(themeCSS)) !== null) {
     const [, varName, oklchValue] = match
     colors[varName] = oklchValue
   }
@@ -95,9 +104,6 @@ const replaceOKLCHWithComments = (
         x !== null,
     )
 
-  const OKLCH_REGEX = /oklch\(([\d.]+%|[\d.]+) [\d.]+ [\d.]+\)/g
-  const VAR_REGEX = /var\(--color-[a-z0-9-]+\)/g
-
   let result = ""
   let lastIndex = 0
 
@@ -122,8 +128,7 @@ const replaceOKLCHWithComments = (
           areOKLCHEqual(oklch, target),
         )
         if (found) {
-          let commentVar = found.varName
-          replacement = `${token}; /* ${commentVar} */`
+          replacement = `${token}; /* ${found.varName} */`
         } else {
           const closest = parsedTheme.reduce((prev, curr) => {
             const deltaE = (
@@ -145,7 +150,7 @@ const replaceOKLCHWithComments = (
         }
       }
     } else if (token.startsWith("var(")) {
-      const varName = token.match(/var\((--color-[a-zA-Z0-9-]+)\)/)?.[1]
+      const varName = token.match(VAR_EXTRACT_REGEX)?.[1]
       if (varName) {
         const oklchValue = themeColors[varName]
         const parsed = oklchValue ? parseOKLCH(oklchValue) : null
@@ -157,7 +162,6 @@ const replaceOKLCHWithComments = (
 
     result += replacement
 
-    // Skip everything until next \n
     const rest = css.slice(matchIndex + token.length)
     const nextNewline = rest.indexOf("\n")
     if (nextNewline !== -1) {
@@ -173,7 +177,7 @@ const replaceOKLCHWithComments = (
   return result
 }
 
-// -- Main Update Function ---
+// --- Update function ---
 
 const updateThemeColors = async (
   inputFile: string,
@@ -187,10 +191,7 @@ const updateThemeColors = async (
 
   const targetComment =
     neutralCount > zincCount ? "--color-neutral-50" : "--color-zinc-50"
-  outputCSS = outputCSS.replaceAll(
-    /\/\* --color-(zinc|neutral)-50 \*\//g,
-    `/* ${targetComment} */`,
-  )
+  outputCSS = outputCSS.replaceAll(COMMENT_VAR_REGEX, `/* ${targetComment} */`)
 
   const filepath = path.relative(process.cwd(), inputFile)
 

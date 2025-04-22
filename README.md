@@ -10,7 +10,7 @@ Need to know your colors better? Identify which [Tailwind colors](https://tailwi
 /* Before */
 .dark {
   --oklch-value: oklch(0.145 0 0);
-  --tailwind-variable: oklch(0.985 0 0);
+  --tailwind-variable: var(--color-neutral-50);
   --random-value: oklch(0.7 0.1 140);
 }
 /* After */
